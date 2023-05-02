@@ -26,17 +26,17 @@ export class App {
     this.input.addEventListener("keydown", (e) => {
       if (e.code == "Enter" || e.code == "NumpadEnter") {
         e.preventDefault();
-       this.addTask(this.input, this.id, this.text, alert);
+       this.addTask(this.input,this.id, this.input.value, this.alert);
       }
     });
-    this.input.addEventListener("input", (e) => {
+    this.input.addEventListener("input", () => {
       if (this.input.value !== "" && !this.alert.classList.contains("dismissible")) {
         this.alert.classList.add("dismissible");
       }
     });
     //Añadir una nueva tarea
     this.arrow.addEventListener("click", () => {
-      this.addTask(this.input, this.idGenerator(), this.input.value, this.alert);
+      this.addTask(this.input, this.id, this.input.value, this.alert);
     });
     // Fetch all tasks
     let tasks = await Fetch.getAll();
@@ -69,29 +69,29 @@ export class App {
   `;
     //Tachar una tarea realizada
     
-    newRow.firstElementChild.firstElementChild.addEventListener(
+    newRow.firstElementChild?.firstElementChild?.addEventListener(
       "click",
       (e) => {
         this.crossOut(e);
       }
     );
     //Activar el modo edición desde la tarea
-    newRow.firstElementChild.lastElementChild.addEventListener("focus", (e) => {
+    newRow.firstElementChild?.lastElementChild?.addEventListener("focus", (e) => {
       this.editModeOn(e, true);
     });
     //Desactivar el modo edición
-    newRow.firstElementChild.lastElementChild.addEventListener("blur", (e) => {
+    newRow.firstElementChild?.lastElementChild?.addEventListener("blur", (e) => {
       this.editModeOff(e);
     });
     //Activar el modo edición desde el icono
-    newRow.firstElementChild.nextElementSibling.firstElementChild.lastElementChild.addEventListener(
+    newRow.firstElementChild?.nextElementSibling?.firstElementChild?.lastElementChild?.addEventListener(
       "click",
       (e) => {
         this.editModeOn(e, false);
       }
     );
     //Eliminar la fila
-    newRow.lastElementChild.firstElementChild.lastElementChild.addEventListener(
+    newRow.lastElementChild?.firstElementChild?.lastElementChild?.addEventListener(
       "click",
       (e) => {
         this.removeRow(e, false);
@@ -99,14 +99,14 @@ export class App {
     );
     return newRow;
   };
-  renderTasks = (tasks) => {
+  renderTasks = (tasks: Array<{ id: number, title: string, done: undefined }>) => {
     console.log(tasks.length);
-    tasks.forEach((task) => {
-      this.table.appendChild(this.generateRow(task.id, task.title, task.done));
+    tasks.forEach((task: { id: number, title: string, done: undefined }) => {
+      this.table.appendChild(this.generateRow(task.id.toString(), task.title, task.done));
     });
   };
-  // //Tachado de tarea
-  crossOut = (e) => {
+  // //Tachado de tareano 
+  crossOut = (e: any) => {
     let task = e.target.nextElementSibling;
     let text = task.innerHTML;
     if (text.includes("<del>")) {
@@ -119,7 +119,7 @@ export class App {
     }
   };
   //Añadir nueva tarea
-  addTask = (input, id, text, alert) => {
+  addTask = (input:HTMLInputElement, id:number, text:string, alert:HTMLElement) => {
     if (input.value.trim() === "") {
       input.value = "";
       alert.classList.remove("dismissible");
@@ -127,33 +127,33 @@ export class App {
       text = input.value;
       id =
         parseInt(
-          document.querySelector("tbody")?.lastElementChild?.getAttribute("id")
+          document.querySelector("tbody")?.lastElementChild?.getAttribute("id") || "0"
         ) + 1 || 0;
-      document.querySelector("tbody").appendChild(this.generateRow(id, text));
+      document.querySelector("tbody")?.appendChild(this.generateRow(id.toString(), text, undefined));
       input.value = "";
     }
   };
   //Modo Edición
-  editModeOn = (e, onFocus) => {
-    let task;
+  editModeOn = (e:Event, onFocus: boolean) => {
+    let task:HTMLElement | null;
     if (onFocus) {
-      task = e.currentTarget;
+      task = e.currentTarget as HTMLElement;
     } else {
       task =
-        e.currentTarget.parentNode.parentNode.previousElementSibling
-          .lastElementChild;
+        (e.currentTarget as HTMLElement).parentNode?.parentNode?.previousSibling?.lastChild as HTMLElement;
+          
       task.focus();
     }
     // console.log(task);
     task.classList.add("editable");
     document.addEventListener("keydown", (e) => {
       if (e.code == "Enter" || e.code == "NumpadEnter" || e.code == "Escape") {
-        task.blur();
+        task?.blur();
       }
     });
   };
-  editModeOff = (e) => {
-    let task = e.currentTarget;
+  editModeOff = (e:Event) => {
+    let task = e.currentTarget as HTMLElement;
     if (task.innerHTML === "") {
       this.removeRow(e, true);
     } else {
@@ -165,16 +165,17 @@ export class App {
     }
   };
   //Eliminación de tarea
-  removeRow = (e, editionMode) => {
+  removeRow = (e:Event, editionMode:boolean) => {
+    const target = e.target as HTMLElement;
     if (editionMode) {
-      e.target.parentNode.parentNode.remove();
+      (target.parentElement as HTMLElement)?.remove();
     } else {
       // console.log(e.target.parentNode.parentNode.parentNode);
-      e.target.parentNode.parentNode.parentNode.remove();
+     ((e.target as HTMLElement).parentElement?.parentElement?.parentElement as HTMLElement)?.remove();
     }
   };
   //Eliminación de espacios en blanco
-  clearWhitespaces = (text) => {
+  clearWhitespaces = (text:string) => {
     return text.replace(new RegExp(/&nbsp;/, "g"), "").trim();
   };
   idGenerator = () => {

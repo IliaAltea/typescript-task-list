@@ -11,8 +11,8 @@ export class Fetch {
     return data;
   }
 
-  static async create(task) {
-    const response = await fetch(this.BASE_URL, {
+  static async create(task: undefined) {
+    const response = await fetch(`${this.BASE_URL}${task}`,{
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -27,9 +27,12 @@ export class Fetch {
     const data = await response.json();
     return data;
   }
+  static BASE_URL(BASE_URL: undefined, arg1: { method: string; headers: { "Content-Type": string; }; body: string; }) {
+    throw new Error("Method not implemented.");
+  }
 
-  static async update(task) {
-    const response = await fetch(`${this.BASE_URL}${task.id}`, {
+  static async update(task:undefined) {
+    const response = await fetch(`${this.BASE_URL}${task}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -45,7 +48,7 @@ export class Fetch {
     return data;
   }
 
-  static async delete(id) {
+  static async delete(id:undefined) {
     const response = await fetch(`${this.BASE_URL}${id}`, {
       method: "DELETE",
     });
